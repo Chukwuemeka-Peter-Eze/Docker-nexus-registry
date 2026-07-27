@@ -1,553 +1,460 @@
 # Troubleshooting Guide
 
-This document outlines common issues that may occur while deploying and using Nexus Repository Manager as a private Docker registry on AWS. It also provides practical troubleshooting steps and recommended resolutions.
+This document provides guidance for diagnosing and resolving common issues that may occur while deploying **Sonatype Nexus Repository Manager** as a private Docker registry in a local Docker environment.
+
+Rather than listing only error messages, this guide explains how to identify the root cause of a problem, verify assumptions, and apply the appropriate resolution.
 
 ---
 
-# Table of Contents
+# Troubleshooting Workflow
 
-- Docker Installation Issues
-- Nexus Container Issues
-- Nexus Web Interface Issues
-- Authentication Problems
-- Docker Push Issues
-- Docker Pull Issues
-- Repository Configuration Issues
-- Docker Networking Issues
-- Performance Issues
-- Persistent Storage Issues
-- AWS Networking Issues
-- Diagnostic Commands
-
----
-
-# Docker Installation Issues
-
-## Problem
-
-Docker commands fail with messages such as:
+When troubleshooting any deployment issue, follow a structured process.
 
 ```text
-docker: command not found
+Problem Observed
+       │
+       ▼
+Collect Information
+       │
+       ▼
+Identify Root Cause
+       │
+       ▼
+Apply Fix
+       │
+       ▼
+Verify Resolution
+       │
+       ▼
+Document Outcome
 ```
+
+Using a consistent troubleshooting workflow reduces guesswork and improves reliability.
+
+---
+
+# Issue 1 — Nexus Web Interface Is Not Accessible
+
+## Symptoms
+
+* Browser cannot reach `http://localhost:8081`
+* Connection refused
+* Page continues loading indefinitely
 
 ## Possible Causes
 
-- Docker is not installed.
-- Docker installation failed.
-- PATH is not configured correctly.
+* Nexus container is not running.
+* Incorrect port mapping.
+* Nexus is still starting.
+* Docker daemon is unavailable.
 
-## Resolution
+## Verification
 
-Verify Docker installation.
-
-```bash
-docker --version
-```
-
-Check Docker service status.
-
-```bash
-sudo systemctl status docker
-```
-
-If Docker is not running:
-
-```bash
-sudo systemctl start docker
-```
-
-Enable Docker at boot.
-
-```bash
-sudo systemctl enable docker
-```
-
----
-
-# Nexus Container Does Not Start
-
-## Symptoms
+Check running containers.
 
 ```bash
 docker ps
 ```
 
-returns no running Nexus container.
-
-## Diagnosis
-
-Check all containers.
-
-```bash
-docker ps -a
-```
-
-Inspect logs.
+Check the Nexus logs.
 
 ```bash
 docker logs nexus
 ```
 
-## Possible Causes
+Inspect the container configuration.
 
-- Insufficient memory.
-- Port conflict.
-- Container startup failure.
-- Invalid Docker command.
+```bash
+docker inspect nexus
+```
 
 ## Resolution
 
-Restart the container.
+* Ensure the container is running.
+* Wait several minutes during the first startup.
+* Verify that port **8081** is mapped correctly.
+* Restart the container if necessary.
 
 ```bash
 docker restart nexus
 ```
 
-If necessary:
-
-```bash
-docker rm nexus
-```
-
-Deploy a new container.
-
 ---
 
-# Nexus Web Interface Is Unavailable
+# Issue 2 — Unable to Retrieve the Administrator Password
 
 ## Symptoms
 
-The browser cannot reach:
-
-```text
-http://<EC2-Public-IP>:8081
-```
-
-## Possible Causes
-
-- Nexus is still starting.
-- Security group blocks port 8081.
-- Container stopped.
-- Incorrect public IP address.
-
-## Resolution
-
-Verify the container.
-
-```bash
-docker ps
-```
-
-Review logs.
-
-```bash
-docker logs nexus
-```
-
-Confirm that port **8081** is allowed in the AWS security group.
-
----
-
-# Unable to Retrieve Administrator Password
-
-## Symptoms
+The following command fails.
 
 ```bash
 docker exec nexus cat /nexus-data/admin.password
 ```
 
-returns an error.
-
 ## Possible Causes
 
-- Nexus has not completed initialization.
-- Incorrect container name.
-- Container stopped.
+* Nexus has not finished initializing.
+* Incorrect container name.
+* Container is stopped.
 
-## Resolution
+## Verification
 
-Confirm the container is running.
+Confirm that the container is running.
 
 ```bash
 docker ps
 ```
 
-Wait several minutes after deployment and retry the command.
+View startup logs.
+
+```bash
+docker logs nexus
+```
+
+## Resolution
+
+Wait until Nexus completes its initialization and then run the command again.
 
 ---
 
-# Docker Login Fails
+# Issue 3 — Docker Login Fails
 
 ## Symptoms
 
 ```text
-unauthorized
-
-authentication failed
+Error response from daemon
+Unauthorized
+Login failed
 ```
 
 ## Possible Causes
 
-- Incorrect username or password.
-- Incorrect Docker registry port.
-- Docker Hosted Repository not configured.
-- Docker connector not enabled.
+* Incorrect username or password.
+* Wrong registry port.
+* Docker Hosted Repository not configured.
+* Docker connector disabled.
+
+## Verification
+
+Confirm the login command.
+
+```bash
+docker login localhost:8083
+```
+
+Verify that the repository is online in the Nexus web interface.
 
 ## Resolution
 
-Verify credentials.
-
-Retry login.
-
-```bash
-docker login <EC2-Public-IP>:<Registry-Port>
-```
-
-Confirm the repository endpoint matches the configured Docker connector.
+* Confirm your credentials.
+* Verify the configured Docker connector port.
+* Ensure the repository is online.
+* Retry the login.
 
 ---
 
-# Docker Push Fails
+# Issue 4 — Image Push Is Denied
 
 ## Symptoms
 
 ```text
-denied
-
-requested access denied
-
-unauthorized
+denied: requested access to the resource is denied
 ```
 
 ## Possible Causes
 
-- Authentication failed.
-- Incorrect image tag.
-- Repository permissions.
-- Wrong registry endpoint.
+* Authentication failed.
+* Incorrect image tag.
+* Repository permissions.
+* Wrong repository name.
 
-## Resolution
+## Verification
 
-Verify login.
-
-```bash
-docker login
-```
-
-Display image tags.
+Display local images.
 
 ```bash
 docker images
 ```
 
+Confirm the tag.
+
+Example:
+
+```text
+localhost:8083/docker-hosted/nginx:1.0
+```
+
+Verify authentication.
+
+```bash
+docker login localhost:8083
+```
+
+## Resolution
+
 Retag the image if necessary.
 
 ```bash
-docker tag
+docker tag nginx:latest \
+localhost:8083/docker-hosted/nginx:1.0
 ```
 
-Retry the push.
+Push again.
 
 ```bash
-docker push
+docker push localhost:8083/docker-hosted/nginx:1.0
 ```
 
 ---
 
-# Docker Pull Fails
+# Issue 5 — Image Does Not Appear in Nexus
+
+## Symptoms
+
+The push command completes, but the image is not visible in the Nexus interface.
+
+## Possible Causes
+
+* Browser cache.
+* Incorrect repository selected.
+* Push failed before completion.
+
+## Verification
+
+Review the Docker push output.
+
+Refresh the Nexus interface.
+
+Verify that you are browsing the correct repository.
+
+## Resolution
+
+Repeat the push operation if necessary and confirm that all image layers upload successfully.
+
+---
+
+# Issue 6 — Unable to Pull an Image
 
 ## Symptoms
 
 ```text
 manifest unknown
 
-image not found
+repository not found
 
-repository does not exist
+pull access denied
 ```
 
 ## Possible Causes
 
-- Incorrect image tag.
-- Incorrect repository.
-- Image was never pushed.
-- Authentication required.
+* Incorrect image tag.
+* Repository name mismatch.
+* Image was never uploaded.
+* Authentication expired.
+
+## Verification
+
+Confirm the image exists within the repository.
+
+Verify the pull command.
+
+```bash
+docker pull localhost:8083/docker-hosted/nginx:1.0
+```
 
 ## Resolution
 
-Verify the image exists in Nexus.
-
-Confirm the image tag.
-
-Retry:
-
-```bash
-docker pull
-```
+* Confirm the repository name.
+* Verify the image tag.
+* Authenticate again.
+* Retry the pull operation.
 
 ---
 
-# Repository Does Not Appear
+# Issue 7 — Container Fails to Start
 
 ## Symptoms
 
-The Docker Hosted Repository is missing from Nexus.
+The container exits immediately after running.
+
+## Verification
+
+Inspect container logs.
+
+```bash
+docker logs <container-name>
+```
+
+Inspect container details.
+
+```bash
+docker inspect <container-name>
+```
 
 ## Possible Causes
 
-- Repository was not created.
-- Repository configuration failed.
-- Browser caching.
+* Incorrect image.
+* Port conflict.
+* Invalid runtime configuration.
 
 ## Resolution
 
-Navigate to:
-
-```text
-Repositories
-```
-
-Verify the repository exists.
-
-If necessary, recreate the repository.
+Resolve the underlying issue and recreate the container.
 
 ---
 
-# Docker Networking Problems
+# Issue 8 — Port Already in Use
 
 ## Symptoms
 
-Docker cannot communicate with Nexus.
-
-## Diagnosis
-
-Display Docker networks.
-
-```bash
-docker network ls
-```
-
-Inspect the default network.
-
-```bash
-docker network inspect bridge
-```
-
-Verify the registry endpoint.
-
----
-
-# Port Conflict
-
-## Symptoms
-
-Container startup fails.
-
-## Diagnosis
-
-Display port usage.
-
-```bash
-sudo ss -tulpn
-```
-
-or
-
-```bash
-sudo netstat -tulpn
-```
-
-## Resolution
-
-Stop the conflicting service or configure Nexus to use a different port.
-
----
-
-# Docker Volume Issues
-
-## Symptoms
-
-Repository data disappears after recreating the container.
+Docker reports that a port is already allocated.
 
 ## Possible Causes
 
-- Volume not mounted.
-- Incorrect mount path.
-- Volume deleted.
+* Another container is using the port.
+* Another application is listening on the same port.
 
-## Diagnosis
+## Verification
 
-Inspect the volume.
-
-```bash
-docker volume inspect nexus-data
-```
-
-Inspect the container.
-
-```bash
-docker inspect nexus
-```
-
-Verify the mounted volume.
-
----
-
-# AWS Connectivity Issues
-
-## Symptoms
-
-SSH works, but Nexus cannot be reached.
-
-## Possible Causes
-
-- Security Group configuration.
-- Incorrect public IP.
-- Network ACL restrictions.
-- Firewall configuration.
-
-## Resolution
-
-Verify inbound rules for:
-
-- SSH (22)
-- Nexus Web Interface (8081)
-- Docker Repository Port
-
-Confirm the EC2 instance is running and accessible.
-
----
-
-# Performance Issues
-
-## Symptoms
-
-Nexus starts slowly or becomes unresponsive.
-
-## Possible Causes
-
-- Limited memory.
-- High CPU utilization.
-- Large repository.
-- Insufficient disk space.
-
-## Resolution
-
-Monitor system resources.
-
-```bash
-free -h
-```
-
-```bash
-top
-```
-
-```bash
-df -h
-```
-
-Increase EC2 resources if necessary.
-
----
-
-# Useful Diagnostic Commands
-
-Display running containers.
+List running containers.
 
 ```bash
 docker ps
 ```
 
-Display all containers.
+## Resolution
+
+Stop the conflicting container.
+
+```bash
+docker stop <container-name>
+```
+
+Or deploy Nexus using a different available port.
+
+---
+
+# Issue 9 — Nexus Startup Takes Longer Than Expected
+
+## Explanation
+
+During the first startup, Nexus initializes its internal database, configuration files, and repository structure.
+
+This process may take several minutes.
+
+## Verification
+
+Monitor the logs.
+
+```bash
+docker logs -f nexus
+```
+
+## Resolution
+
+Allow the initialization process to complete before attempting to access the web interface.
+
+---
+
+# Useful Diagnostic Commands
+
+## Docker Information
+
+```bash
+docker info
+```
+
+---
+
+## Running Containers
+
+```bash
+docker ps
+```
+
+---
+
+## All Containers
 
 ```bash
 docker ps -a
 ```
 
-View Nexus logs.
+---
 
-```bash
-docker logs nexus
-```
-
-Inspect the Nexus container.
-
-```bash
-docker inspect nexus
-```
-
-List Docker images.
+## Docker Images
 
 ```bash
 docker images
 ```
 
-List Docker volumes.
+---
+
+## Docker Volumes
 
 ```bash
 docker volume ls
 ```
 
-Inspect a Docker volume.
+---
 
-```bash
-docker volume inspect nexus-data
-```
-
-Display Docker networks.
+## Docker Networks
 
 ```bash
 docker network ls
 ```
 
-Display Docker storage usage.
+---
+
+## Docker Logs
+
+```bash
+docker logs nexus
+```
+
+---
+
+## Docker Disk Usage
 
 ```bash
 docker system df
 ```
 
-Monitor Docker events.
+---
+
+## Docker System Cleanup
 
 ```bash
-docker events
+docker system prune
 ```
 
 ---
 
-# Troubleshooting Workflow
+# Preventive Best Practices
 
-```text
-Issue Detected
-      │
-      ▼
-Identify Symptoms
-      │
-      ▼
-Review Docker Logs
-      │
-      ▼
-Inspect Container
-      │
-      ▼
-Verify Repository Configuration
-      │
-      ▼
-Check AWS Networking
-      │
-      ▼
-Validate Docker Authentication
-      │
-      ▼
-Retry Operation
-      │
-      ▼
-Confirm Successful Resolution
-```
+Many deployment issues can be avoided by following a few operational practices:
+
+* Verify Docker is running before starting the deployment.
+* Use a persistent Docker volume for Nexus data.
+* Wait for Nexus to finish initializing before logging in.
+* Use consistent image naming and tagging.
+* Verify authentication before pushing images.
+* Confirm successful uploads in the Nexus interface.
+* Monitor container logs during deployment.
+* Clean up unused Docker resources regularly.
 
 ---
 
-# Conclusion
+# Lessons from Troubleshooting
 
-Most deployment issues can be resolved by systematically checking Docker services, Nexus container status, repository configuration, authentication settings, networking, and persistent storage. Using Docker's inspection and logging commands together with AWS network verification provides a structured approach to diagnosing and resolving common problems encountered when operating a private Docker registry.
+Troubleshooting is not simply about fixing errors—it is about understanding how the system behaves.
+
+Throughout this project, several important principles became clear:
+
+* Most deployment issues can be isolated through logs and inspection commands.
+* Container status should always be verified before investigating application-level problems.
+* Consistent naming and tagging reduce deployment mistakes.
+* Incremental verification after each step makes failures easier to identify.
+* Maintaining persistent storage prevents accidental data loss during container recreation.
+
+Developing a systematic troubleshooting approach is an essential DevOps skill because it enables engineers to resolve issues efficiently while building confidence in the reliability of their infrastructure.

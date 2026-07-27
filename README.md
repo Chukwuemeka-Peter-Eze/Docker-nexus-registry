@@ -1,11 +1,11 @@
-# Docker Nexus Repository as a Private Docker Registry on AWS
+# Docker Nexus Repository as a Private Docker Registry
 
 <p align="center">
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker\&logoColor=white)
 ![Nexus Repository](https://img.shields.io/badge/Nexus_Repository_Manager-4CAF50?style=for-the-badge)
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge\&logo=ubuntu\&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge\&logo=linux\&logoColor=black)
 ![DevOps](https://img.shields.io/badge/DevOps-0A66C2?style=for-the-badge)
 
 </p>
@@ -14,70 +14,74 @@
 
 # Project Overview
 
-This project demonstrates how to deploy and configure **Sonatype Nexus Repository Manager** as a **private Docker registry** on an AWS EC2 instance. The implementation covers the complete lifecycle of private container image management, from installing Nexus and configuring a Docker hosted repository to authenticating Docker clients, pushing images, pulling images, and validating deployments.
+This project demonstrates how to deploy and configure **Sonatype Nexus Repository Manager** as a **private Docker registry** in a local development environment using Docker.
 
-While public registries such as Docker Hub are suitable for distributing public images, many organizations require a secure, centralized repository to store proprietary container images, manage versions, control access, and improve software supply chain security. Nexus Repository Manager addresses these requirements by acting as a private artifact repository for Docker images and many other package formats.
+The implementation covers the complete lifecycle of managing private container images—from deploying Nexus as a container, creating a Docker Hosted Repository, authenticating Docker clients, publishing container images, retrieving those images from the registry, and verifying successful deployments.
 
-This project was implemented on an Ubuntu-based AWS EC2 instance using Docker Engine. Throughout the implementation, I documented the setup process, registry configuration, authentication workflow, image publishing process, troubleshooting techniques, architecture, and operational best practices.
+Container registries are a critical component of modern DevOps workflows. While public registries such as Docker Hub provide access to publicly available container images, many organizations require a private registry to securely store internally developed images, maintain version history, control access, and establish a trusted source for software artifacts.
+
+In this project, Nexus Repository Manager serves as that trusted repository. Running entirely on a local Docker environment allows the complete workflow to be explored without requiring cloud infrastructure, making it an excellent platform for understanding enterprise container image management.
+
+The repository documents every stage of the implementation, including deployment, configuration, authentication, image publishing, image retrieval, verification, troubleshooting, and operational best practices.
 
 ---
 
 # Project Objectives
 
-The primary objectives of this project were to:
+The primary objectives of this project are to:
 
-- Deploy Nexus Repository Manager on AWS.
-- Configure Nexus as a private Docker registry.
-- Create and configure a Docker hosted repository.
-- Configure Docker client authentication.
-- Tag Docker images correctly for a private registry.
-- Push Docker images to Nexus.
-- Pull images from the private registry.
-- Verify successful image deployment.
-- Understand private registry workflows.
-- Document the complete implementation for reproducibility.
+* Deploy Sonatype Nexus Repository Manager as a Docker container.
+* Configure Nexus as a private Docker registry.
+* Create and configure a Docker Hosted Repository.
+* Authenticate Docker clients with the private registry.
+* Tag Docker images for private registry deployment.
+* Push Docker images into Nexus Repository Manager.
+* Pull Docker images from the private registry.
+* Verify successful image deployment.
+* Understand private registry workflows and artifact management.
+* Document the implementation in a reproducible and professional manner.
 
 ---
 
 # Why Use a Private Docker Registry?
 
-Container images are valuable software artifacts. In enterprise environments, storing them in a public registry is often inappropriate due to security, compliance, and intellectual property requirements.
+Container images are valuable software artifacts that often contain proprietary application code and deployment configurations. Although Docker Hub is widely used for public image distribution, organizations frequently require an internal registry where access can be controlled and images can be managed throughout the software development lifecycle.
 
-A private Docker registry enables organizations to:
+A private Docker registry provides several important advantages:
 
-- Store proprietary application images securely.
-- Control who can publish and pull images.
-- Maintain internal image versions.
-- Improve software supply chain security.
-- Reduce dependency on public registries.
-- Centralize image management.
-- Support development, testing, and production workflows consistently.
+* Secure storage for proprietary container images.
+* Centralized image management.
+* Controlled authentication and authorization.
+* Reliable version management.
+* Consistent deployment artifacts across development, testing, and production environments.
+* Reduced dependency on external registries.
+* Improved software supply chain security.
 
-Nexus Repository Manager provides these capabilities while supporting multiple artifact types beyond Docker images.
+Nexus Repository Manager fulfills these requirements while supporting many additional package formats, making it a common artifact repository in enterprise DevOps environments.
 
 ---
 
 # What is Nexus Repository Manager?
 
-Nexus Repository Manager is an artifact repository platform that stores, manages, and distributes software packages and container images.
+Sonatype Nexus Repository Manager is a universal artifact repository that stores, manages, and distributes software packages and container images.
 
-In this project, Nexus is configured as a **private Docker registry**, allowing Docker clients to authenticate, publish images, and retrieve images from a controlled internal repository.
+Although this project focuses on Docker images, Nexus also supports numerous package ecosystems including Maven, npm, NuGet, PyPI, Helm, and many others. This flexibility makes it a central component of many CI/CD pipelines.
 
-Although this implementation focuses on Docker, Nexus also supports repositories for technologies such as Maven, npm, NuGet, PyPI, Helm, and others, making it a common component in enterprise CI/CD pipelines.
+Within this implementation, Nexus acts as a private Docker registry where authenticated Docker clients can publish, store, retrieve, and manage container images in a controlled environment.
 
 ---
 
 # Public Registry vs Private Registry
 
-| Feature | Public Registry | Private Registry (Nexus) |
-|----------|-----------------|---------------------------|
-| Access | Public | Controlled |
-| Authentication | Optional | Required |
-| Proprietary Images | Not Recommended | Supported |
-| Version Control | Yes | Yes |
-| Access Management | Limited | Granular |
-| Enterprise Ready | Limited | Yes |
-| Internal Software Distribution | Limited | Yes |
+| Feature               | Public Registry | Private Registry (Nexus) |
+| --------------------- | --------------- | ------------------------ |
+| Access                | Public          | Controlled               |
+| Authentication        | Optional        | Required                 |
+| Proprietary Images    | Not Recommended | Supported                |
+| Version Management    | Yes             | Yes                      |
+| Access Control        | Limited         | Granular                 |
+| Enterprise Use        | Limited         | Excellent                |
+| Internal Distribution | Limited         | Designed For It          |
 
 ---
 
@@ -87,13 +91,10 @@ Although this implementation focuses on Docker, Nexus also supports repositories
                      Developer
                           │
                           ▼
-                  GitHub Repository
+               Local Development Machine
                           │
                           ▼
-                    AWS EC2 Instance
-                          │
-                          ▼
-                     Docker Engine
+                    Docker Engine
                           │
                           ▼
              Nexus Repository Manager
@@ -111,22 +112,21 @@ Although this implementation focuses on Docker, Nexus also supports repositories
                 Running Containers
 ```
 
-This architecture demonstrates how Nexus Repository Manager acts as the centralized repository for storing, distributing, and managing Docker images within an AWS-hosted environment.
+This architecture demonstrates how Nexus Repository Manager serves as the centralized private registry for storing, distributing, and managing Docker images within a local containerized environment.
 
 ---
 
 # Technologies Used
 
-| Technology | Purpose |
-|------------|---------|
-| AWS EC2 | Cloud Compute |
-| Ubuntu Linux | Operating System |
-| Docker Engine | Container Runtime |
-| Nexus Repository Manager | Private Docker Registry |
-| Docker CLI | Image Management |
-| Git | Version Control |
-| GitHub | Repository Hosting |
-| SSH | Remote Administration |
+| Technology               | Purpose                     |
+| ------------------------ | --------------------------- |
+| Ubuntu Linux             | Operating System            |
+| Docker Engine            | Container Runtime           |
+| Docker CLI               | Image Management            |
+| Nexus Repository Manager | Private Docker Registry     |
+| Git                      | Version Control             |
+| GitHub                   | Source Code Hosting         |
+| Terminal                 | Command-Line Administration |
 
 ---
 
@@ -134,65 +134,83 @@ This architecture demonstrates how Nexus Repository Manager acts as the centrali
 
 This project demonstrates practical experience with:
 
-- Private Docker registries
-- Nexus Repository Manager
-- Docker image tagging
-- Docker authentication
-- Image publishing
-- Image retrieval
-- Docker registry administration
-- Software artifact management
-- AWS infrastructure
-- Linux server administration
-- DevOps documentation
-- Operational troubleshooting
-
----
-
-# Architecture Diagram
-
-> Replace the placeholder below after creating the Draw.io architecture diagram.
-
-```text
-images/architecture.png
-```
-
-<p align="center">
-
-![Nexus Architecture](images/architecture.png)
-
-</p>
+* Docker container management
+* Nexus Repository Manager
+* Private Docker registries
+* Docker image tagging
+* Docker authentication
+* Image publishing
+* Image retrieval
+* Software artifact management
+* Linux administration
+* DevOps documentation
+* Troubleshooting containerized services
+* Registry administration
 
 ---
 
 # High-Level Workflow
 
 ```text
-Create Docker Image
-        │
-        ▼
-Tag Image
-        │
-        ▼
+Deploy Nexus
+      │
+      ▼
+Create Docker Hosted Repository
+      │
+      ▼
 Authenticate Docker Client
-        │
-        ▼
-Push Image to Nexus
-        │
-        ▼
-Store Image in Private Registry
-        │
-        ▼
+      │
+      ▼
+Tag Docker Image
+      │
+      ▼
+Push Image
+      │
+      ▼
+Store Image in Nexus
+      │
+      ▼
 Pull Image
-        │
-        ▼
-Run Container
-        │
-        ▼
+      │
+      ▼
+Deploy Container
+      │
+      ▼
 Verify Successful Deployment
 ```
 
-This workflow demonstrates the complete lifecycle of managing Docker images using a private registry hosted on AWS.
+This workflow represents the complete lifecycle of managing Docker images through a private registry hosted locally using Docker.
+
+---
+
+# Prerequisites
+
+Before starting this project, ensure your local development environment meets the following requirements.
+
+## Software Requirements
+
+| Component     | Purpose                        |
+| ------------- | ------------------------------ |
+| Docker Engine | Run and manage containers      |
+| Docker CLI    | Build and manage Docker images |
+| Git           | Version control                |
+| GitHub        | Repository hosting             |
+| Web Browser   | Access the Nexus web interface |
+| Terminal      | Execute Docker commands        |
+
+---
+
+## System Requirements
+
+A modern computer capable of running Docker is sufficient for this project.
+
+Recommended specifications:
+
+* 64-bit operating system
+* Minimum 4 GB RAM (8 GB recommended)
+* Dual-core processor or better
+* At least 10 GB of available disk space
+* Stable internet connection (required for downloading Docker images)
 
 ---
 
@@ -215,16 +233,16 @@ Docker-nexus-registry/
 │
 ├── images/
 │   ├── architecture.png
-│   ├── ec2-instance.png
 │   ├── docker-installation.png
 │   ├── nexus-running.png
 │   ├── nexus-login.png
 │   ├── docker-hosted-repository.png
 │   ├── docker-login.png
+│   ├── docker-images.png
 │   ├── docker-tag.png
 │   ├── docker-push.png
-│   ├── docker-pull.png
 │   ├── repository-images.png
+│   ├── docker-pull.png
 │   ├── container-running.png
 │   └── cleanup.png
 │
@@ -232,201 +250,118 @@ Docker-nexus-registry/
 └── video-script.md
 ```
 
----
-
-# Learning Outcomes
-
-By completing this project, I gained practical experience in:
-
-- Deploying Nexus Repository Manager on AWS.
-- Configuring a private Docker registry.
-- Managing Docker hosted repositories.
-- Authenticating Docker clients.
-- Publishing Docker images.
-- Retrieving Docker images from a private registry.
-- Understanding secure image management workflows.
-- Documenting infrastructure implementations.
-- Applying software supply chain best practices.
+Each directory is organized to separate documentation, architecture diagrams, screenshots, and supporting resources, making the repository easy to navigate and maintain.
 
 ---
 
----
+# Local Development Environment
 
-# AWS Infrastructure
+Unlike production environments where Nexus Repository Manager is commonly deployed on cloud infrastructure or dedicated servers, this implementation runs entirely on a local machine using Docker.
 
-The entire implementation was performed on **Amazon Web Services (AWS)** using an Ubuntu EC2 instance.
+This approach provides an excellent learning environment because it reproduces the core workflow of an enterprise private registry without requiring cloud resources.
 
-Hosting Nexus Repository Manager on AWS provides a practical environment for learning enterprise container image management and simulates how private registries are commonly deployed in production.
+The local environment consists of:
 
----
-
-## Infrastructure Components
-
-| Component | Purpose |
-|-----------|---------|
-| Cloud Provider | Amazon Web Services (AWS) |
-| Compute Service | Amazon EC2 |
-| Operating System | Ubuntu Linux |
-| Container Runtime | Docker Engine |
-| Private Registry | Nexus Repository Manager |
-| Version Control | Git |
-| Repository Hosting | GitHub |
-| Remote Access | SSH |
+* Docker Engine as the container runtime
+* Nexus Repository Manager running inside a Docker container
+* A persistent Docker volume for repository data
+* Docker CLI for interacting with the registry
+* A web browser for repository administration
 
 ---
 
-# Prerequisites
-
-Before beginning this implementation, ensure the following resources are available.
-
-## Cloud Resources
-
-- AWS Account
-- Amazon EC2 Instance
-- Public IP Address
-- Security Group configured
-- Internet Connectivity
-
-## Software Requirements
-
-- Ubuntu Linux
-- Docker Engine
-- Docker CLI
-- Git
-- SSH Client
-- Web Browser
-
----
-
-# Solution Overview
-
-This project follows the complete lifecycle of private container image management.
+# Local Architecture
 
 ```text
-Developer
-      │
-      ▼
-AWS EC2 Instance
+Local Machine
       │
       ▼
 Docker Engine
       │
       ▼
-Run Nexus Repository
+Docker Container
       │
       ▼
-Create Docker Hosted Repository
+Nexus Repository Manager
       │
       ▼
-Configure Docker Client
+Docker Hosted Repository
       │
-      ▼
-Docker Login
-      │
-      ▼
-Tag Image
-      │
-      ▼
-Push Image
-      │
-      ▼
-Store Image
-      │
-      ▼
-Pull Image
-      │
-      ▼
-Deploy Container
+      ├──────────────┐
+      ▼              ▼
+docker push     docker pull
+      │              │
+      └──────┬───────┘
+             ▼
+       Docker Images
 ```
 
----
-
-# Step 1 — Launch an EC2 Instance
-
-Launch an Ubuntu EC2 instance.
-
-Recommended configuration:
-
-- Ubuntu Server LTS
-- Public IP Enabled
-- SSH Enabled
-- Minimum 4 GB RAM
-- At least 2 vCPUs
-- Adequate storage for Docker images
-
-Nexus Repository Manager benefits from additional memory, especially when managing multiple repositories.
+The Docker Engine hosts the Nexus container, while Nexus provides the private registry that stores and distributes Docker images.
 
 ---
 
-## Screenshot Placeholder
+# Implementation Overview
+
+The project follows the same workflow commonly used in enterprise environments for managing container images.
 
 ```text
-images/ec2-instance.png
+Verify Docker Installation
+          │
+          ▼
+Create Persistent Storage
+          │
+          ▼
+Deploy Nexus Repository Manager
+          │
+          ▼
+Access Nexus Web Interface
+          │
+          ▼
+Complete Initial Configuration
+          │
+          ▼
+Create Docker Hosted Repository
+          │
+          ▼
+Authenticate Docker Client
+          │
+          ▼
+Tag Docker Image
+          │
+          ▼
+Push Image
+          │
+          ▼
+Verify Repository Contents
+          │
+          ▼
+Pull Image
+          │
+          ▼
+Run Container
 ```
 
-<p align="center">
-
-![EC2 Instance](images/ec2-instance.png)
-
-</p>
+Each step builds on the previous one, resulting in a fully functional private Docker registry capable of securely storing and distributing container images.
 
 ---
 
-# Step 2 — Configure Security Groups
+# Step 1 — Verify Docker Installation
 
-Ensure the EC2 security group allows the required inbound traffic.
+Before deploying Nexus Repository Manager, verify that Docker is installed and functioning correctly.
 
-| Port | Purpose |
-|------|----------|
-| 22 | SSH |
-| 8081 | Nexus Web Interface |
-| Docker Registry Port | Docker Hosted Repository |
-
-The Docker registry port depends on how the hosted repository is configured.
-
----
-
-# Step 3 — Connect to the Server
-
-Connect using SSH.
-
-```bash
-ssh -i your-key.pem ubuntu@<EC2-Public-IP>
-```
-
-After connecting, verify that the server is accessible before proceeding.
-
----
-
-# Step 4 — Update Ubuntu
-
-Update installed packages.
-
-```bash
-sudo apt update
-
-sudo apt upgrade -y
-```
-
-Keeping the operating system updated improves security and compatibility.
-
----
-
-# Step 5 — Verify Docker Installation
-
-Confirm Docker is installed correctly.
+Display the installed Docker version.
 
 ```bash
 docker --version
 ```
 
-Display Docker system information.
+Display detailed Docker system information.
 
 ```bash
 docker info
 ```
 
-Ensure that the Docker daemon is running successfully before deploying Nexus.
+Successful output confirms that both the Docker CLI and Docker daemon are available.
 
 ---
 
@@ -446,151 +381,35 @@ images/docker-installation.png
 
 # Why Run Nexus in Docker?
 
-Running Nexus inside a Docker container provides several operational benefits.
+Running Nexus Repository Manager inside a Docker container provides several operational advantages.
 
-- Simplified deployment
-- Consistent runtime environment
-- Easy upgrades
-- Container isolation
-- Portable configuration
-- Faster recovery
+* Consistent deployment across environments
+* Simple installation
+* Easy upgrades
+* Process isolation
+* Portable configuration
+* Simplified maintenance
+* Persistent data using Docker volumes
 
-Containerizing infrastructure services is a common DevOps practice that improves repeatability and maintainability.
-
----
-
-# Understanding Nexus Repository Manager
-
-Nexus Repository Manager serves as a centralized repository for software artifacts.
-
-For this project, Nexus functions as a **private Docker registry**, allowing authenticated Docker clients to publish and retrieve container images securely.
-
-The repository becomes the trusted source for internally managed Docker images.
+Containerizing infrastructure services is a widely adopted DevOps practice because it improves repeatability and reduces configuration drift between environments.
 
 ---
 
-# Nexus Architecture
+# Step 2 — Create Persistent Storage
 
-```text
-Docker Client
-      │
-      ▼
-Docker Login
-      │
-      ▼
-Nexus Repository Manager
-      │
-      ▼
-Docker Hosted Repository
-      │
-      ▼
-Docker Images
-      │
-      ▼
-Application Deployment
-```
-
----
-
-# Container Image Workflow
-
-This project demonstrates the following image lifecycle.
-
-```text
-Build Docker Image
-        │
-        ▼
-Tag Image
-        │
-        ▼
-Authenticate
-        │
-        ▼
-Push Image
-        │
-        ▼
-Store Image
-        │
-        ▼
-Pull Image
-        │
-        ▼
-Run Container
-```
-
-This workflow reflects how container images are commonly managed within enterprise environments.
-
----
-
-# Benefits of a Private Registry
-
-Using Nexus Repository Manager provides several advantages over relying exclusively on public registries.
-
-- Secure internal image storage
-- Controlled access
-- Image version management
-- Centralized repository
-- Reduced external dependencies
-- Better software supply chain governance
-- Support for enterprise CI/CD workflows
-
----
-
-# Preparing for Nexus Deployment
-
-Before starting Nexus, verify:
-
-- Docker Engine is running.
-- Required ports are open.
-- EC2 instance has sufficient resources.
-- Internet connectivity is available.
-- SSH access is functioning.
-- Docker CLI is operational.
-
-Completing these checks reduces the likelihood of deployment issues later in the process.
-
----
-
-# Screenshot Gallery
-
-Replace each placeholder with the corresponding screenshots from your implementation.
-
-| Activity | Screenshot |
-|----------|------------|
-| EC2 Instance Running | `images/ec2-instance.png` |
-| SSH Connection | `images/ssh-connection.png` *(optional)* |
-| Ubuntu Updated | `images/system-update.png` *(optional)* |
-| Docker Installation | `images/docker-installation.png` |
-
----
-
----
-
-# Deploying Nexus Repository Manager
-
-Nexus Repository Manager is deployed as a Docker container running on the AWS EC2 instance.
-
-Running Nexus inside Docker simplifies installation, improves portability, and aligns with modern infrastructure management practices.
-
-Once deployed, Nexus becomes the organization's private repository for Docker images and other software artifacts.
-
----
-
-# Step 6 — Create a Docker Volume for Nexus
-
-Before deploying Nexus, create a Docker volume to persist repository data.
+Nexus stores repository metadata, configuration, and uploaded artifacts. To ensure this data survives container recreation, create a dedicated Docker volume.
 
 ```bash
 docker volume create nexus-data
 ```
 
-Using a named Docker volume ensures that repository data survives container restarts, upgrades, and recreation.
-
-Verify the volume.
+Verify that the volume has been created.
 
 ```bash
 docker volume ls
 ```
+
+Using a named volume separates application data from the container lifecycle, allowing Nexus to retain its configuration and stored images even if the container is removed or recreated.
 
 ---
 
@@ -602,38 +421,38 @@ images/nexus-volume.png
 
 <p align="center">
 
-![Docker Volume for Nexus](images/nexus-volume.png)
+![Docker Volume](images/nexus-volume.png)
 
 </p>
 
 ---
 
-# Step 7 — Deploy Nexus Repository Manager
+# Step 3 — Deploy Nexus Repository Manager
 
-Start Nexus as a Docker container.
-
-Example:
+Deploy Nexus as a Docker container.
 
 ```bash
 docker run -d \
---name nexus \
--p 8081:8081 \
--v nexus-data:/nexus-data \
-sonatype/nexus3
+  --name nexus \
+  -p 8081:8081 \
+  -v nexus-data:/nexus-data \
+  sonatype/nexus3
 ```
 
-This command performs the following:
+This command performs the following tasks:
 
-- Creates a Nexus container
-- Maps port **8081** to the host
-- Mounts persistent storage
-- Starts Nexus in detached mode
+* Creates a new container named `nexus`
+* Maps port **8081** from the container to the local machine
+* Mounts the persistent Docker volume
+* Starts Nexus in detached mode
 
-Verify the container.
+Verify that the container is running.
 
 ```bash
 docker ps
 ```
+
+If the container appears in the output, the deployment has completed successfully.
 
 ---
 
@@ -651,42 +470,36 @@ images/nexus-running.png
 
 ---
 
-# Understanding the Deployment
+# Deployment Architecture
 
 ```text
-AWS EC2
-     │
-     ▼
 Docker Engine
-     │
-     ▼
+      │
+      ▼
 Nexus Container
-     │
-     ▼
+      │
+      ▼
 Docker Volume
-
-nexus-data
+ (nexus-data)
 ```
 
-All repository configuration and uploaded Docker images are stored inside the persistent volume.
-
-This prevents data loss if the Nexus container is recreated.
+The Docker volume stores all repository data independently of the container itself, ensuring persistence across container restarts, upgrades, and recreation.
 
 ---
 
-# Step 8 — Access the Nexus Web Interface
+# Step 4 — Access the Nexus Web Interface
 
-Open a browser.
+After deploying the Nexus container, the next step is to access its web-based administration interface.
 
-Navigate to:
+Open your preferred web browser and navigate to:
 
 ```text
-http://<EC2-Public-IP>:8081
+http://localhost:8081
 ```
 
-The Nexus welcome page should appear.
+During the first startup, Nexus initializes its internal services, creates the default configuration, and prepares the embedded database. This initialization process may take several minutes depending on your system resources.
 
-The first startup may take several minutes because Nexus initializes its internal components.
+If the page does not load immediately, wait a few minutes and refresh the browser.
 
 ---
 
@@ -704,34 +517,31 @@ images/nexus-login.png
 
 ---
 
-# Step 9 — Retrieve the Initial Administrator Password
+# Step 5 — Retrieve the Initial Administrator Password
 
-The initial administrator password is stored inside the Nexus container.
+For security reasons, Nexus generates a temporary administrator password during its first startup. The password is stored inside the persistent data directory.
 
-Retrieve it using:
+Retrieve it by running:
 
 ```bash
-docker exec nexus \
-cat /nexus-data/admin.password
+docker exec nexus cat /nexus-data/admin.password
 ```
 
-Copy the password.
+The command returns the temporary password that will be used for the initial login.
 
-Log into Nexus using:
-
-Username
+Default username:
 
 ```text
 admin
 ```
 
-Password
+Password:
 
 ```text
-<admin.password>
+<output from admin.password>
 ```
 
-After signing in, Nexus prompts you to change the password.
+After signing in, Nexus prompts you to create a new administrator password before continuing.
 
 ---
 
@@ -743,21 +553,23 @@ images/admin-password.png
 
 <p align="center">
 
-![Initial Admin Password](images/admin-password.png)
+![Initial Administrator Password](images/admin-password.png)
 
 </p>
 
 ---
 
-# Step 10 — Complete Initial Configuration
+# Step 6 — Complete the Initial Configuration
 
-During first login:
+Once authenticated, complete the initial setup wizard.
 
-- Change the administrator password.
-- Configure anonymous access according to your requirements.
-- Complete the setup wizard.
+Typical tasks include:
 
-After completing the wizard, the Nexus dashboard becomes available.
+* Changing the default administrator password
+* Choosing whether to enable or disable anonymous access
+* Completing the initialization wizard
+
+After the setup process finishes, the Nexus dashboard becomes available.
 
 ---
 
@@ -775,57 +587,52 @@ images/nexus-dashboard.png
 
 ---
 
-# Understanding Nexus Components
+# Understanding the Nexus Dashboard
 
-The Nexus dashboard provides centralized management for software repositories.
+The Nexus web interface provides centralized administration for repositories and software artifacts.
 
-Major components include:
+Some of the major components include:
 
-- Repositories
-- Security
-- Users
-- Roles
-- Blob Stores
-- Tasks
-- System Information
+* Repositories
+* Security
+* Users
+* Roles
+* Blob Stores
+* Tasks
+* System Information
 
-For this project, the primary focus is the **Docker Hosted Repository**.
+Although Nexus supports many repository formats, this project focuses on configuring and managing a **Docker Hosted Repository**.
 
 ---
 
-# Step 11 — Create a Docker Hosted Repository
+# Step 7 — Create a Docker Hosted Repository
 
-Navigate to:
+A hosted repository stores Docker images that you publish from your local machine.
+
+From the Nexus dashboard, navigate to:
 
 ```text
 Repositories
-```
-
-↓
-
-```text
+        │
+        ▼
 Create Repository
-```
-
-↓
-
-```text
+        │
+        ▼
 Docker (Hosted)
 ```
 
-Configure the repository.
+Configure the repository with settings similar to the following:
 
-Typical settings include:
+| Setting           | Recommended Value                                  |
+| ----------------- | -------------------------------------------------- |
+| Repository Name   | docker-hosted                                      |
+| Recipe            | Docker (Hosted)                                    |
+| Deployment Policy | Allow Redeploy (or according to your requirements) |
+| Blob Store        | Default                                            |
+| HTTP Connector    | Enabled                                            |
+| HTTP Port         | 8083 (or your configured port)                     |
 
-| Setting | Description |
-|----------|-------------|
-| Repository Name | docker-hosted |
-| Repository Type | Hosted |
-| Deployment Policy | Allow Redeploy (or as required) |
-| Blob Store | Default |
-| HTTP Port | Configure as required |
-
-Save the repository.
+Save the repository after completing the configuration.
 
 ---
 
@@ -845,98 +652,82 @@ images/docker-hosted-repository.png
 
 # Understanding the Docker Hosted Repository
 
-The hosted repository stores internally managed Docker images.
+A Docker Hosted Repository acts as a private registry where container images are stored and managed.
+
+Unlike Docker Hub, which is publicly accessible by default, a hosted repository provides complete control over who can publish and retrieve images.
 
 Typical workflow:
 
 ```text
 Docker Client
-
-        │
-
+      │
+      ▼
 docker login
-
-        │
-
-docker push
-
-        │
-
+      │
+      ▼
 Docker Hosted Repository
-
-        │
-
-docker pull
-
-        │
-
-Application Deployment
+      │
+      ├──────────────┐
+      ▼              ▼
+docker push     docker pull
+      │              │
+      └──────┬───────┘
+             ▼
+      Stored Docker Images
 ```
 
-Instead of downloading images from a public registry, internal teams retrieve approved images from Nexus.
+This repository becomes the central source of truth for internally managed container images.
 
 ---
 
 # Verify Repository Creation
 
-After creating the repository, confirm:
+Before proceeding, verify that the repository has been created successfully.
 
-- Repository is listed.
-- Repository is online.
-- Docker connector is configured.
-- Repository status is healthy.
+Confirm the following:
 
-At this point, Nexus is ready to accept Docker client connections.
+* The repository appears in the repository list.
+* The repository status is **Online**.
+* The HTTP connector is enabled.
+* The configured Docker port is available.
+* No configuration errors are displayed.
 
----
-
-# Screenshot Gallery
-
-Replace each placeholder with your implementation screenshots.
-
-| Activity | Screenshot |
-|----------|------------|
-| Docker Volume Created | `images/nexus-volume.png` |
-| Nexus Container Running | `images/nexus-running.png` |
-| Nexus Login Page | `images/nexus-login.png` |
-| Initial Password Retrieval | `images/admin-password.png` |
-| Nexus Dashboard | `images/nexus-dashboard.png` |
-| Docker Hosted Repository | `images/docker-hosted-repository.png` |
+Completing these checks ensures that the registry is ready to accept Docker client connections.
 
 ---
 
-# Deployment Summary
+## Deployment Summary
 
-The following milestones have now been completed:
+At this stage, the following milestones have been completed:
 
-- Docker volume created for persistent Nexus storage.
-- Nexus Repository Manager deployed in Docker.
-- Persistent storage configured.
-- Nexus web interface accessed.
-- Initial administrator password retrieved.
-- Administrator account configured.
-- Docker Hosted Repository created.
-- Repository verified and ready for Docker client authentication.
+* Docker Engine verified.
+* Persistent Docker volume created.
+* Nexus Repository Manager deployed as a container.
+* Nexus web interface accessed.
+* Initial administrator password retrieved.
+* Administrator account configured.
+* Docker Hosted Repository created.
+* Repository verified and ready for Docker client authentication.
 
----
+The environment is now prepared for publishing and retrieving Docker images through the private registry.
 
 ---
 
 # Configuring Docker Authentication
 
-After creating the Docker Hosted Repository, the next step is to configure the Docker client so it can securely communicate with Nexus Repository Manager.
+With the Docker Hosted Repository created and online, the next step is to configure the Docker client so it can communicate securely with Nexus Repository Manager.
 
 Authentication ensures that only authorized users can publish and retrieve container images from the private registry.
 
 ---
 
-# Understanding the Authentication Workflow
+# Authentication Workflow
 
 ```text
 Docker Client
       │
       ▼
-Docker Login
+docker login
       │
       ▼
 Nexus Repository Manager
@@ -944,56 +735,44 @@ Nexus Repository Manager
       ▼
 Authentication Successful
       │
-      ▼
-Push Images
-      │
-      ▼
-Pull Images
+      ├──────────────┐
+      ▼              ▼
+docker push     docker pull
 ```
 
-This authentication process protects private images from unauthorized access.
+Once authentication succeeds, the Docker client can interact with the hosted repository.
 
 ---
 
-# Step 12 — Configure the Docker Client
+# Step 8 — Authenticate the Docker Client
 
-Docker communicates with registries using the Docker CLI.
-
-Before pushing or pulling images, authenticate against the Nexus Docker Hosted Repository.
-
-Run:
+Open a terminal and authenticate against the Docker Hosted Repository.
 
 ```bash
-docker login <EC2-Public-IP>:<Docker-Repository-Port>
+docker login localhost:8083
 ```
 
-Example:
+When prompted, enter your Nexus credentials.
 
-```bash
-docker login 54.xxx.xxx.xxx:8083
-```
-
-> **Note:** Replace the IP address and Docker repository port with the values configured in your AWS environment.
-
-Enter:
-
-Username
+**Username**
 
 ```text
 admin
 ```
 
-Password
+**Password**
 
 ```text
-Your Nexus Password
+Your Nexus administrator password
 ```
 
-If authentication succeeds, Docker returns:
+If authentication succeeds, Docker displays:
 
 ```text
 Login Succeeded
 ```
+
+This confirms that the Docker client is authorized to interact with the private registry.
 
 ---
 
@@ -1011,9 +790,9 @@ images/docker-login.png
 
 ---
 
-# Step 13 — Verify Existing Images
+# Step 9 — View Local Docker Images
 
-Display locally available images.
+Before publishing an image, inspect the images already available on your local machine.
 
 ```bash
 docker images
@@ -1022,13 +801,13 @@ docker images
 Example output:
 
 ```text
-REPOSITORY          TAG       IMAGE ID
-nginx               latest    xxxxxxxxx
-node                latest    xxxxxxxxx
-ubuntu              latest    xxxxxxxxx
+REPOSITORY      TAG       IMAGE ID       CREATED        SIZE
+nginx           latest    xxxxxxxxx      x days ago     xxxMB
+ubuntu          latest    xxxxxxxxx      x days ago     xxxMB
+node            latest    xxxxxxxxx      x days ago     xxxMB
 ```
 
-Choose the image that will be published to the private registry.
+Choose the image that you want to publish to the private registry.
 
 ---
 
@@ -1046,51 +825,49 @@ images/docker-images.png
 
 ---
 
-# Understanding Image Tagging
+# Understanding Docker Image Tagging
 
-Docker identifies images using tags.
+Before an image can be pushed to a private registry, Docker must know where that image belongs.
 
-A private registry requires images to be tagged with the registry endpoint before they can be pushed.
+This is accomplished by assigning a new tag that includes:
+
+* Registry endpoint
+* Repository name
+* Image name
+* Version tag
 
 General format:
 
 ```text
-<Registry>/<Repository>/<Image>:<Tag>
+<registry>/<repository>/<image>:<tag>
 ```
 
 Example:
 
 ```text
-54.xxx.xxx.xxx:8083/docker-hosted/nginx:1.0
+localhost:8083/docker-hosted/nginx:1.0
 ```
+
+The original image remains unchanged. Docker simply creates another reference that points to the same underlying image.
 
 ---
 
-# Step 14 — Tag the Docker Image
+# Step 10 — Tag a Docker Image
 
-Tag the image for the Nexus repository.
-
-Example:
+Create a tag for the image that targets the private registry.
 
 ```bash
 docker tag nginx:latest \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
+localhost:8083/docker-hosted/nginx:1.0
 ```
 
-Example:
-
-```bash
-docker tag nginx:latest \
-54.xxx.xxx.xxx:8083/docker-hosted/nginx:1.0
-```
-
-Display images again.
+Verify that the new tag exists.
 
 ```bash
 docker images
 ```
 
-The tagged image should now appear.
+The output should now include the newly tagged image alongside the original image.
 
 ---
 
@@ -1108,30 +885,28 @@ images/docker-tag.png
 
 ---
 
-# Step 15 — Push the Image to Nexus
+# Step 11 — Push the Image to Nexus
 
-Upload the image to the private registry.
+Publish the tagged image to the Docker Hosted Repository.
 
 ```bash
-docker push \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
+docker push localhost:8083/docker-hosted/nginx:1.0
 ```
 
-Docker uploads each image layer.
+Docker uploads each image layer individually.
 
-Typical workflow:
+A typical push process looks similar to:
 
 ```text
 Preparing
-
 Waiting
-
 Pushing Layers
-
-Image Uploaded
-
+Pushed
+Digest Generated
 Push Complete
 ```
+
+After completion, the image is stored inside Nexus Repository Manager.
 
 ---
 
@@ -1151,29 +926,27 @@ images/docker-push.png
 
 # Verify the Uploaded Image
 
-Return to the Nexus web interface.
-
-Navigate to:
+Open the Nexus web interface and navigate to:
 
 ```text
 Browse
-```
-
-↓
-
-```text
+      │
+      ▼
 docker-hosted
 ```
 
-The uploaded image should now be visible.
+Locate the uploaded image.
 
-Information typically displayed includes:
+Typical information displayed includes:
 
-- Repository
-- Image name
-- Tag
-- Digest
-- Upload timestamp
+* Repository name
+* Image name
+* Version tag
+* Digest
+* Upload timestamp
+* Image layers
+
+Seeing the image listed confirms that the push operation completed successfully.
 
 ---
 
@@ -1185,24 +958,27 @@ images/repository-images.png
 
 <p align="center">
 
-![Images Stored in Nexus](images/repository-images.png)
+![Repository Images](images/repository-images.png)
 
 </p>
 
 ---
 
-# Step 16 — Pull an Image from Nexus
+# Step 12 — Pull the Image from Nexus
 
-Verify that the image can be retrieved successfully.
+To verify that the registry can distribute stored images, pull the image back from Nexus.
 
 ```bash
-docker pull \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
+docker pull localhost:8083/docker-hosted/nginx:1.0
 ```
 
-Docker downloads the image layers from the private registry.
+Docker downloads the image from the hosted repository.
 
-Successful completion confirms that the registry is functioning correctly.
+A successful pull confirms that:
+
+* Authentication is working.
+* The repository is accessible.
+* The image is available for deployment.
 
 ---
 
@@ -1220,24 +996,32 @@ images/docker-pull.png
 
 ---
 
-# Step 17 — Deploy a Container Using the Private Image
+# Step 13 — Deploy a Container from the Private Registry
 
-Run a container from the image stored in Nexus.
+Run a container using the image stored in Nexus.
 
 ```bash
 docker run -d \
---name nginx-private \
--p 8080:80 \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
+  --name nginx-private \
+  -p 8080:80 \
+  localhost:8083/docker-hosted/nginx:1.0
 ```
 
-Verify the running container.
+Verify that the container is running.
 
 ```bash
 docker ps
 ```
 
-Open the application in a browser if applicable to confirm successful deployment.
+If the container appears in the output, the deployment has completed successfully.
+
+You can also open your browser and navigate to:
+
+```text
+http://localhost:8080
+```
+
+If the default Nginx page is displayed, the container is running correctly using the image retrieved from your private registry.
 
 ---
 
@@ -1249,7 +1033,7 @@ images/container-running.png
 
 <p align="center">
 
-![Container Running from Nexus Image](images/container-running.png)
+![Running Container](images/container-running.png)
 
 </p>
 
@@ -1258,298 +1042,241 @@ images/container-running.png
 # Complete Image Lifecycle
 
 ```text
-Build Image
-      │
-      ▼
+Build or Pull Image
+        │
+        ▼
 Tag Image
-      │
-      ▼
-Docker Login
-      │
-      ▼
-Push Image
-      │
-      ▼
-Private Registry
-      │
-      ▼
-Pull Image
-      │
-      ▼
+        │
+        ▼
+docker login
+        │
+        ▼
+Push to Nexus
+        │
+        ▼
+Store in Private Registry
+        │
+        ▼
+Pull from Nexus
+        │
+        ▼
 Run Container
-      │
-      ▼
+        │
+        ▼
 Application Running
 ```
 
-This workflow demonstrates how Nexus Repository Manager acts as the central source of truth for container images.
+This workflow demonstrates the complete lifecycle of managing Docker images using Nexus Repository Manager as a private Docker registry.
 
 ---
 
 # Deployment Verification Checklist
 
-Confirm the following:
+Verify that each of the following tasks has been completed successfully:
 
-- Docker client authenticated successfully.
-- Local image tagged correctly.
-- Image pushed to Nexus.
-- Image visible in the hosted repository.
-- Image pulled successfully.
-- Container started from the private image.
-- Application verified after deployment.
+* Docker client authenticated with Nexus.
+* Local image tagged for the private registry.
+* Image pushed successfully.
+* Image visible in the Docker Hosted Repository.
+* Image pulled successfully.
+* Container deployed from the private registry.
+* Application accessible through the mapped port.
 
----
-
-# Screenshot Gallery
-
-Replace each placeholder with your implementation screenshots.
-
-| Activity | Screenshot |
-|----------|------------|
-| Docker Login | `images/docker-login.png` |
-| Local Docker Images | `images/docker-images.png` |
-| Docker Tag | `images/docker-tag.png` |
-| Docker Push | `images/docker-push.png` |
-| Images in Nexus | `images/repository-images.png` |
-| Docker Pull | `images/docker-pull.png` |
-| Running Container | `images/container-running.png` |
+Completing this checklist confirms that the private registry is fully operational and ready for use.
 
 ---
 
-# Section Summary
+# Repository Management and Best Practices
 
-At this stage, the complete private registry workflow has been successfully demonstrated:
+Deploying a private Docker registry is only the first step. Maintaining a reliable registry requires consistent image management, versioning, security, and operational practices.
 
-- Docker client configured for authentication.
-- Login to Nexus completed.
-- Local Docker image tagged for the private registry.
-- Image pushed to the Docker Hosted Repository.
-- Image verified in the Nexus web interface.
-- Image pulled from the private registry.
-- Container deployed using the private image.
-
-This validates the end-to-end process of securely storing, distributing, and deploying Docker images using Nexus Repository Manager hosted on AWS.
-
----
-
----
-
-# Repository Management
-
-After successfully configuring the private Docker registry, it is important to understand how Nexus Repository Manager supports long-term image management, version control, and operational maintenance.
-
-Unlike a public registry, Nexus enables organizations to manage container images throughout the entire software development lifecycle.
+This section highlights the practices that improve the maintainability and reliability of a private container registry.
 
 ---
 
 # Managing Docker Images
 
-A private registry serves as the central location for storing container images.
+As applications evolve, new container images are continuously created and published. A private registry acts as the central repository for these artifacts throughout the software development lifecycle.
 
-Typical image lifecycle:
+A typical image lifecycle is shown below.
 
 ```text
 Developer
-
       │
-
+      ▼
 Build Image
-
       │
-
+      ▼
 Tag Image
-
       │
-
-Push Image
-
+      ▼
+Push to Nexus
       │
-
-Store in Nexus
-
+      ▼
+Store in Repository
       │
-
-Quality Assurance
-
+      ▼
+Pull for Deployment
       │
-
-Production Deployment
-
+      ▼
+Run Application
       │
-
-Archive Older Versions
+      ▼
+Publish Updated Version
 ```
 
-This workflow promotes consistency across development, testing, and production environments.
+Managing images through a single repository ensures that development, testing, and production environments all use trusted and versioned artifacts.
 
 ---
 
 # Image Versioning
 
-Versioning is an essential practice when publishing Docker images.
+Versioning plays an important role in maintaining predictable deployments.
 
-Instead of relying solely on the `latest` tag, assign meaningful version numbers.
+Instead of relying exclusively on the `latest` tag, assign meaningful version numbers to images.
 
 Examples:
 
 ```text
-nginx:1.0
-
-nginx:1.1
-
-nginx:1.2
-
-backend-api:2.0
-
-frontend-app:3.4
+nginx:1.0.0
+nginx:1.1.0
+backend-api:2.0.0
+frontend-app:3.4.1
 ```
 
-Benefits include:
+Using explicit version tags provides several benefits:
 
-- Easier rollbacks
-- Improved release management
-- Better deployment consistency
-- Clear version history
+* Easier rollback to previous releases
+* Clear deployment history
+* Improved release management
+* Consistent deployments across environments
 
 ---
 
 # Image Tagging Best Practices
 
-Good tagging conventions improve maintainability.
+Well-structured image tags make repositories easier to maintain.
 
-Recommended formats include:
+Common tagging strategies include:
 
 ```text
 application:1.0.0
-
-application:2.1.5
-
+application:2.3.1
 application:production
-
 application:staging
-
 application:development
 ```
 
-Avoid using `latest` as the only production tag.
-
-Explicit version numbers make deployments more predictable.
+While the `latest` tag is convenient during development, explicit version tags are generally preferred for production workloads because they make deployments reproducible.
 
 ---
 
 # Repository Organization
 
-As container images increase, organize repositories logically.
+As the number of stored images grows, organizing repositories becomes increasingly important.
 
-Example structure:
+Example:
 
 ```text
 docker-hosted
-
 │
-
 ├── frontend
-
 ├── backend
-
-├── nginx
-
-├── redis
-
+├── database
 ├── monitoring
-
+├── nginx
 └── utilities
 ```
 
-Organized repositories simplify administration and improve discoverability.
+A logical repository structure improves discoverability and simplifies long-term maintenance.
 
 ---
 
 # Security Best Practices
 
-Private registries protect critical software assets.
+A private registry often stores deployment artifacts that are critical to an organization.
 
 Recommended practices include:
 
-- Require authentication for all users.
-- Use strong administrator credentials.
-- Assign role-based permissions.
-- Disable anonymous access unless explicitly required.
-- Regularly review user accounts.
-- Keep Nexus Repository Manager updated.
-- Restrict registry access through security groups and firewalls.
-- Back up repository data regularly.
+* Require authentication for registry access.
+* Use strong administrator credentials.
+* Disable anonymous access unless it is intentionally required.
+* Assign appropriate permissions to users.
+* Keep Nexus Repository Manager updated.
+* Regularly review stored images.
+* Remove obsolete artifacts when they are no longer needed.
+* Back up persistent repository data.
 
-These practices help strengthen the security of the software supply chain.
+Applying these practices helps protect container images and supports a more secure software supply chain.
 
 ---
 
 # Operational Best Practices
 
-During this project, the following operational practices were applied:
+During this implementation, several operational practices were followed.
 
-- Store Nexus data in a Docker volume.
-- Use descriptive repository names.
-- Tag Docker images consistently.
-- Validate every image after publishing.
-- Document deployment procedures.
-- Monitor repository storage usage.
-- Remove obsolete images when appropriate.
-- Verify successful image pulls before deployment.
+* Store Nexus data in a persistent Docker volume.
+* Use descriptive repository names.
+* Apply consistent image tagging conventions.
+* Verify image uploads after every push.
+* Confirm successful image pulls before deployment.
+* Document deployment procedures.
+* Monitor storage usage over time.
+* Clean up unused Docker resources periodically.
+
+These practices improve reliability and make the environment easier to manage.
 
 ---
 
 # Monitoring Repository Health
 
-Routine monitoring helps maintain a reliable registry.
+Regular monitoring helps identify issues before they affect deployments.
 
-Key areas to monitor include:
+Areas worth monitoring include:
 
-- Disk utilization
-- Available storage
-- Repository availability
-- Docker image uploads
-- Authentication failures
-- Container status
-- Docker daemon health
+* Docker container status
+* Repository availability
+* Storage utilization
+* Image uploads and downloads
+* Authentication failures
+* Docker daemon health
+* Available disk space
 
-Regular monitoring supports stable operations and early issue detection.
+Routine monitoring contributes to a stable and dependable registry.
 
 ---
 
 # Backup Considerations
 
-A private registry often contains critical deployment artifacts.
+Repository data is stored inside the persistent Docker volume.
 
-Recommended backup strategy:
+A simple backup strategy is illustrated below.
 
 ```text
 Nexus Repository
-
         │
-
+        ▼
 Docker Volume
-
         │
-
+        ▼
 Scheduled Backup
-
         │
-
+        ▼
 Secure Storage
-
         │
-
+        ▼
 Recovery
 ```
 
-Backing up the Docker volume preserves repository configuration and stored images.
+Backing up the persistent volume preserves repository configuration, metadata, and stored Docker images.
 
 ---
 
-# Cleanup Procedures
+# Cleanup
 
-Remove test containers.
+After completing testing, remove resources that are no longer required.
+
+Remove the Nexus container.
 
 ```bash
 docker rm -f nexus
@@ -1573,13 +1300,13 @@ Remove unused Docker resources.
 docker system prune
 ```
 
-Display Docker storage usage.
+Display Docker disk usage.
 
 ```bash
 docker system df
 ```
 
-Only remove the Nexus data volume if the repository is no longer required.
+If the repository is no longer needed, remove the persistent Docker volume.
 
 ```bash
 docker volume rm nexus-data
@@ -1603,59 +1330,59 @@ images/cleanup.png
 
 # Common Challenges
 
-| Challenge | Resolution |
-|-----------|------------|
-| Docker login fails | Verify credentials and repository port |
-| Image push denied | Confirm authentication and repository permissions |
-| Cannot pull image | Verify image tag and repository endpoint |
-| Nexus unavailable | Check container status and port configuration |
-| Repository not visible | Verify repository creation and Docker connector |
-| Container cannot start | Inspect logs and available system resources |
+| Challenge                                | Possible Resolution                                                           |
+| ---------------------------------------- | ----------------------------------------------------------------------------- |
+| Unable to access the Nexus web interface | Verify that the Nexus container is running and port 8081 is mapped correctly. |
+| Docker login fails                       | Confirm the repository port, username, and password.                          |
+| Image push is denied                     | Verify authentication and repository permissions.                             |
+| Image cannot be pulled                   | Check the image tag and repository endpoint.                                  |
+| Nexus container stops unexpectedly       | Inspect the container logs using `docker logs nexus`.                         |
+| Repository does not appear               | Verify that the Docker Hosted Repository was created successfully.            |
 
 ---
 
-# Screenshot Walkthrough
+# Learning Outcomes
 
-Replace the placeholders below with screenshots from your implementation.
+Completing this project provided practical experience with:
 
-| Activity | Screenshot |
-|----------|------------|
-| EC2 Instance | `images/ec2-instance.png` |
-| Docker Installed | `images/docker-installation.png` |
-| Nexus Running | `images/nexus-running.png` |
-| Nexus Login | `images/nexus-login.png` |
-| Docker Hosted Repository | `images/docker-hosted-repository.png` |
-| Docker Login | `images/docker-login.png` |
-| Docker Image Tagging | `images/docker-tag.png` |
-| Docker Push | `images/docker-push.png` |
-| Repository Images | `images/repository-images.png` |
-| Docker Pull | `images/docker-pull.png` |
-| Running Container | `images/container-running.png` |
-| Cleanup | `images/cleanup.png` |
-
----
-
-# Project Summary
-
-This project demonstrates the complete implementation of a private Docker registry using Nexus Repository Manager on AWS. The workflow covers deploying Nexus in Docker, configuring a Docker Hosted Repository, authenticating Docker clients, tagging images, publishing images to the private registry, retrieving those images, and deploying containers from trusted internal artifacts.
-
-By centralizing container image storage, Nexus Repository Manager improves security, version management, and software distribution while reducing reliance on public registries. The project also reinforces best practices for registry administration, operational maintenance, documentation, and secure image management within modern DevOps workflows.
+* Deploying Nexus Repository Manager in Docker.
+* Configuring a private Docker registry.
+* Creating Docker Hosted Repositories.
+* Authenticating Docker clients.
+* Tagging Docker images for private registries.
+* Publishing container images.
+* Retrieving images from a private registry.
+* Deploying containers from trusted artifacts.
+* Managing persistent Docker volumes.
+* Documenting infrastructure projects professionally.
 
 ---
 
 # Future Improvements
 
-Potential enhancements include:
+Possible enhancements for this project include:
 
-- Integrating Nexus with CI/CD pipelines.
-- Automating image publishing from build systems.
-- Enabling HTTPS with TLS certificates.
-- Configuring role-based access control for development teams.
-- Implementing image vulnerability scanning.
-- Replicating repositories across environments.
-- Integrating with Kubernetes deployments.
-- Automating backup and disaster recovery.
-- Monitoring registry performance with observability tools.
+* Integrating Nexus with CI/CD pipelines.
+* Configuring HTTPS using TLS certificates.
+* Introducing reverse proxy support with Nginx.
+* Implementing role-based access control.
+* Adding automated image vulnerability scanning.
+* Integrating with Kubernetes.
+* Automating repository backups.
+* Monitoring Nexus with observability tools such as Prometheus and Grafana.
+* Deploying the registry on cloud infrastructure for production use.
+
+---
+
+# Project Summary
+
+This project demonstrates the deployment and configuration of **Sonatype Nexus Repository Manager** as a private Docker registry running in a local Docker environment.
+
+The implementation covered the complete lifecycle of container image management, including deploying Nexus, configuring a Docker Hosted Repository, authenticating Docker clients, tagging images, publishing images, retrieving them from the registry, and deploying containers using trusted artifacts.
+
+Beyond the implementation itself, the project reinforced key DevOps concepts such as artifact management, image versioning, persistent storage, authentication, documentation, and operational best practices.
+
+Although this implementation was performed in a local environment, the same workflow forms the foundation for enterprise container registries used within CI/CD pipelines and production platforms.
 
 ---
 
@@ -1663,10 +1390,8 @@ Potential enhancements include:
 
 If you found this repository helpful or would like to discuss Docker, DevOps, Cloud Engineering, Infrastructure Automation, or Software Supply Chain Management, feel free to connect.
 
-- **GitHub:** https://github.com/Chukwuemeka-Peter-Eze
-- **LinkedIn:** https://www.linkedin.com/in/chukwuemekapetereze/
-- **Notion:** https://lumpy-bubble-7b0.notion.site/Containers-with-Docker-3a546a96f97480a88041ff2ff82a6b5f?source=copy_link
+* **GitHub:** https://github.com/Chukwuemeka-Peter-Eze
+* **LinkedIn:** https://www.linkedin.com/in/chukwuemekapetereze/
+* **Notion:** https://lumpy-bubble-7b0.notion.site/Containers-with-Docker-3a546a96f97480a88041ff2ff82a6b5f
 
 If you found this project useful, consider giving it a ⭐ to support the repository.
-
----

@@ -1,117 +1,76 @@
-# Setup Guide
+# Nexus Repository Manager Setup Guide
 
-This guide provides a step-by-step procedure for deploying **Nexus Repository Manager** as a private Docker registry on an AWS EC2 instance.
+This guide walks through the complete process of deploying **Sonatype Nexus Repository Manager** as a private Docker registry in a local development environment.
 
-The objective is to configure a secure private registry that can store, manage, and distribute Docker images within an organization.
+By the end of this guide, you will have:
+
+* A running Nexus Repository Manager instance
+* A configured Docker Hosted Repository
+* Docker client authentication
+* The ability to push and pull Docker images
+* A working private container registry
 
 ---
 
-# Table of Contents
+# Overview
 
-- Prerequisites
-- AWS Infrastructure
-- Install Docker
-- Deploy Nexus Repository Manager
-- Access Nexus
-- Configure Initial Setup
-- Create Docker Hosted Repository
-- Configure Docker Authentication
-- Push Docker Images
-- Pull Docker Images
-- Verify Deployment
-- Cleanup
+Nexus Repository Manager is a universal artifact repository that stores and manages software packages and container images.
+
+In this project, Nexus is deployed as a Docker container and configured to act as a private Docker registry.
+
+The implementation uses a local Docker environment, making it suitable for learning container registry workflows without requiring cloud infrastructure.
 
 ---
 
 # Prerequisites
 
-Before beginning, ensure you have the following:
+Ensure the following software is installed before beginning.
 
-## AWS
+| Requirement   | Purpose              |
+| ------------- | -------------------- |
+| Docker Engine | Container runtime    |
+| Docker CLI    | Docker management    |
+| Git           | Version control      |
+| Web Browser   | Nexus administration |
+| Terminal      | Execute commands     |
 
-- AWS Account
-- Ubuntu EC2 Instance
-- Public IP Address
-- Security Group
-- SSH Access
-
----
-
-## Local Machine
-
-- Docker CLI
-- SSH Client
-- Git
-- Internet Connection
-
----
-
-# Step 1 — Connect to AWS
-
-SSH into the EC2 instance.
-
-```bash
-ssh -i your-key.pem ubuntu@<EC2-Public-IP>
-```
-
-Verify connectivity before continuing.
-
----
-
-# Step 2 — Update Ubuntu
-
-```bash
-sudo apt update
-
-sudo apt upgrade -y
-```
-
-Keeping the operating system updated helps ensure compatibility and security.
-
----
-
-# Step 3 — Verify Docker
-
-Verify Docker is installed.
+Verify Docker installation.
 
 ```bash
 docker --version
-```
-
-Verify Docker daemon status.
-
-```bash
 docker info
 ```
 
 ---
 
-# Step 4 — Create Persistent Storage
+# Step 1 — Create Persistent Storage
 
-Create a Docker volume for Nexus.
+Create a Docker volume to store Nexus configuration and repository data.
 
 ```bash
 docker volume create nexus-data
 ```
 
-Verify the volume.
+Verify that the volume exists.
 
 ```bash
 docker volume ls
 ```
 
+Using a persistent volume ensures that uploaded artifacts and configuration remain available even if the Nexus container is recreated.
+
 ---
 
-# Step 5 — Deploy Nexus Repository Manager
+# Step 2 — Deploy Nexus Repository Manager
 
-Run Nexus inside a Docker container.
+Start Nexus as a Docker container.
 
 ```bash
 docker run -d \
---name nexus \
--p 8081:8081 \
--v nexus-data:/nexus-data \
-sonatype/nexus3
+  --name nexus \
+  -p 8081:8081 \
+  -v nexus-data:/nexus-data \
+  sonatype/nexus3
 ```
 
 Verify that the container is running.
@@ -120,29 +79,30 @@ Verify that the container is running.
 docker ps
 ```
 
-The initial startup may take several minutes.
+The first startup may take several minutes because Nexus initializes its internal components.
 
 ---
 
-# Step 6 — Access Nexus
+# Step 3 — Access the Web Interface
 
 Open your browser.
 
+Navigate to:
+
 ```text
-http://<EC2-Public-IP>:8081
+http://localhost:8081
 ```
 
-Wait until the login page becomes available.
+Wait until the login page appears.
 
 ---
 
-# Step 7 — Retrieve the Initial Password
+# Step 4 — Retrieve the Initial Password
 
-Retrieve the administrator password stored inside the container.
+Retrieve the temporary administrator password.
 
 ```bash
-docker exec nexus \
-cat /nexus-data/admin.password
+docker exec nexus cat /nexus-data/admin.password
 ```
 
 Login using:
@@ -156,70 +116,61 @@ admin
 Password
 
 ```text
-<admin.password>
+<output of admin.password>
 ```
 
-After signing in, create a new administrator password.
+Create a new administrator password when prompted.
 
 ---
 
-# Step 8 — Complete Initial Configuration
+# Step 5 — Complete Initial Configuration
 
-During the first login:
+Complete the setup wizard.
 
-- Change the administrator password.
-- Configure anonymous access according to your requirements.
-- Complete the initialization wizard.
+Typical tasks include:
 
-The Nexus dashboard should now be available.
+* Change administrator password
+* Configure anonymous access
+* Finish initialization
+
+After completing the wizard, the Nexus dashboard becomes available.
 
 ---
 
-# Step 9 — Create a Docker Hosted Repository
+# Step 6 — Create a Docker Hosted Repository
 
-Navigate to:
+Navigate through the Nexus interface.
 
 ```text
 Repositories
-
-↓
-
+      ↓
 Create Repository
-
-↓
-
+      ↓
 Docker (Hosted)
 ```
 
 Configure the repository.
 
-Example settings:
-
-| Setting | Value |
-|----------|-------|
+| Setting         | Value         |
+| --------------- | ------------- |
 | Repository Name | docker-hosted |
-| Repository Type | Hosted |
-| Blob Store | Default |
-| Deployment Policy | Allow Redeploy (or your preferred policy) |
-| Docker Connector | Configure the required port |
+| HTTP Connector  | Enabled       |
+| HTTP Port       | 8083          |
+| Blob Store      | Default       |
 
 Save the repository.
 
 ---
 
-# Step 10 — Configure Docker Authentication
+# Step 7 — Authenticate Docker
 
 Authenticate the Docker client.
 
 ```bash
-docker login <EC2-Public-IP>:<Docker-Repository-Port>
+docker login localhost:8083
 ```
 
-Example:
-
-```bash
-docker login 54.xxx.xxx.xxx:8083
-```
+Use your Nexus administrator credentials.
 
 Successful authentication returns:
 
@@ -229,27 +180,19 @@ Login Succeeded
 
 ---
 
-# Step 11 — Verify Local Images
+# Step 8 — Tag a Docker Image
 
-Display locally available Docker images.
+Display local images.
 
 ```bash
 docker images
 ```
 
-Choose an image to upload to the private registry.
-
----
-
-# Step 12 — Tag the Image
-
-Tag the image using the Nexus registry endpoint.
-
-Example:
+Tag an image.
 
 ```bash
 docker tag nginx:latest \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
+localhost:8083/docker-hosted/nginx:1.0
 ```
 
 Verify the new tag.
@@ -260,155 +203,91 @@ docker images
 
 ---
 
-# Step 13 — Push the Image
+# Step 9 — Push the Image
 
-Upload the image.
-
-```bash
-docker push \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
-```
-
-Docker uploads every image layer to Nexus.
-
----
-
-# Step 14 — Verify the Image
-
-Open the Nexus dashboard.
-
-Navigate to:
-
-```text
-Browse
-
-↓
-
-docker-hosted
-```
-
-Confirm that the image appears in the repository.
-
----
-
-# Step 15 — Pull the Image
-
-Download the image from the private registry.
+Publish the image.
 
 ```bash
-docker pull \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
+docker push localhost:8083/docker-hosted/nginx:1.0
 ```
 
-This verifies successful retrieval.
+Wait for Docker to upload all image layers.
+
+After completion, verify the image in the Nexus web interface under the **docker-hosted** repository.
 
 ---
 
-# Step 16 — Deploy a Container
+# Step 10 — Pull the Image
 
-Run a container from the image stored in Nexus.
+Retrieve the image from the private registry.
+
+```bash
+docker pull localhost:8083/docker-hosted/nginx:1.0
+```
+
+Successful completion confirms that the registry is functioning correctly.
+
+---
+
+# Step 11 — Deploy a Container
+
+Run a container using the image stored in Nexus.
 
 ```bash
 docker run -d \
---name nginx-private \
--p 8080:80 \
-<EC2-Public-IP>:<Docker-Repository-Port>/docker-hosted/nginx:1.0
+  --name nginx-private \
+  -p 8080:80 \
+  localhost:8083/docker-hosted/nginx:1.0
 ```
 
-Verify deployment.
+Verify that the container is running.
 
 ```bash
 docker ps
 ```
 
----
-
-# Step 17 — Validate the Deployment
-
-Confirm:
-
-- Nexus is running.
-- Docker Hosted Repository is available.
-- Docker login succeeded.
-- Image uploaded successfully.
-- Image appears in Nexus.
-- Image pulled successfully.
-- Container started successfully.
-
----
-
-# Cleanup
-
-Stop Nexus.
-
-```bash
-docker stop nexus
-```
-
-Remove the container.
-
-```bash
-docker rm nexus
-```
-
-Remove unused resources.
-
-```bash
-docker system prune
-```
-
-Remove the Docker volume only if the repository is no longer needed.
-
-```bash
-docker volume rm nexus-data
-```
-
----
-
-# Deployment Workflow
+Open a browser and navigate to:
 
 ```text
-Launch EC2
-      │
-      ▼
-Install Docker
-      │
-      ▼
-Create Docker Volume
-      │
-      ▼
-Deploy Nexus
-      │
-      ▼
-Login to Nexus
-      │
-      ▼
-Create Docker Repository
-      │
-      ▼
-Docker Login
-      │
-      ▼
-Tag Image
-      │
-      ▼
-Push Image
-      │
-      ▼
-Store Image
-      │
-      ▼
-Pull Image
-      │
-      ▼
-Run Container
-      │
-      ▼
-Verify Deployment
+http://localhost:8080
 ```
+
+If the Nginx welcome page is displayed, the deployment was successful.
+
+---
+
+# Validation Checklist
+
+Confirm that the following tasks have been completed.
+
+* Docker installed successfully
+* Nexus container running
+* Nexus web interface accessible
+* Administrator account configured
+* Docker Hosted Repository created
+* Docker client authenticated
+* Image tagged
+* Image pushed successfully
+* Image visible in Nexus
+* Image pulled successfully
+* Container deployed successfully
+
+---
+
+# Common Issues
+
+| Issue                           | Possible Solution                                                       |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| Nexus startup is slow           | Wait several minutes for initialization to complete.                    |
+| Unable to access localhost:8081 | Verify the Nexus container is running and the port mapping is correct.  |
+| Docker login fails              | Confirm the repository port and credentials.                            |
+| Push denied                     | Check repository permissions and image tag.                             |
+| Image not visible               | Refresh the Nexus interface and verify the push completed successfully. |
 
 ---
 
 # Conclusion
 
-Following this guide results in a fully functional private Docker registry hosted on AWS using Nexus Repository Manager. The completed environment enables secure image storage, controlled access, centralized image management, and reliable image distribution, providing a strong foundation for modern DevOps and CI/CD workflows.
+You have successfully deployed Sonatype Nexus Repository Manager as a private Docker registry in a local Docker environment.
+
+The registry can now be used to store, version, and distribute Docker images securely. The same workflow can be adapted for larger environments, integrated into CI/CD pipelines, or extended to support additional artifact formats managed by Nexus Repository Manager.
