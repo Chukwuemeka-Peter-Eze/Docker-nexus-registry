@@ -345,7 +345,7 @@ Each step builds on the previous one, resulting in a fully functional private Do
 
 ---
 
-# Step 1 — Verify Docker Installation
+# Step 1: Verify Docker Installation
 
 Before deploying Nexus Repository Manager, verify that Docker is installed and functioning correctly.
 
@@ -364,8 +364,6 @@ docker info
 Successful output confirms that both the Docker CLI and Docker daemon are available.
 
 ---
-
-## Screenshot Placeholder
 
 ```text
 images/docker-installation.png
@@ -395,7 +393,7 @@ Containerizing infrastructure services is a widely adopted DevOps practice becau
 
 ---
 
-# Step 2 — Create Persistent Storage
+# Step 2: Create Persistent Storage
 
 Nexus stores repository metadata, configuration, and uploaded artifacts. To ensure this data survives container recreation, create a dedicated Docker volume.
 
@@ -413,8 +411,6 @@ Using a named volume separates application data from the container lifecycle, al
 
 ---
 
-## Screenshot Placeholder
-
 ```text
 images/nexus-volume.png
 ```
@@ -427,7 +423,7 @@ images/nexus-volume.png
 
 ---
 
-# Step 3 — Deploy Nexus Repository Manager
+# Step 3: Deploy Nexus Repository Manager
 
 Deploy Nexus as a Docker container.
 
@@ -456,7 +452,17 @@ If the container appears in the output, the deployment has completed successfull
 
 ---
 
-## Screenshot Placeholder
+```text
+images/nexus-running.png
+```
+
+<p align="center">
+
+![Running Nexus Container](images/dockernexus-running.png)
+
+</p>
+
+---
 
 ```text
 images/nexus-running.png
@@ -464,9 +470,11 @@ images/nexus-running.png
 
 <p align="center">
 
-![Running Nexus Container](images/nexus-running.png)
+![Running Nexus Container](images/dockernexus-running-2.png)
 
 </p>
+
+---
 
 ---
 
@@ -487,7 +495,7 @@ The Docker volume stores all repository data independently of the container itse
 
 ---
 
-# Step 4 — Access the Nexus Web Interface
+# Step 4: Access the Nexus Web Interface
 
 After deploying the Nexus container, the next step is to access its web-based administration interface.
 
@@ -503,8 +511,6 @@ If the page does not load immediately, wait a few minutes and refresh the browse
 
 ---
 
-## Screenshot Placeholder
-
 ```text
 images/nexus-login.png
 ```
@@ -517,7 +523,7 @@ images/nexus-login.png
 
 ---
 
-# Step 5 — Retrieve the Initial Administrator Password
+# Step 5: Retrieve the Initial Administrator Password
 
 For security reasons, Nexus generates a temporary administrator password during its first startup. The password is stored inside the persistent data directory.
 
@@ -545,8 +551,6 @@ After signing in, Nexus prompts you to create a new administrator password befor
 
 ---
 
-## Screenshot Placeholder
-
 ```text
 images/admin-password.png
 ```
@@ -559,7 +563,7 @@ images/admin-password.png
 
 ---
 
-# Step 6 — Complete the Initial Configuration
+# Step 6: Complete the Initial Configuration
 
 Once authenticated, complete the initial setup wizard.
 
@@ -572,8 +576,6 @@ Typical tasks include:
 After the setup process finishes, the Nexus dashboard becomes available.
 
 ---
-
-## Screenshot Placeholder
 
 ```text
 images/nexus-dashboard.png
@@ -605,7 +607,7 @@ Although Nexus supports many repository formats, this project focuses on configu
 
 ---
 
-# Step 7 — Create a Docker Hosted Repository
+# Step 7: Create a Docker Hosted Repository
 
 A hosted repository stores Docker images that you publish from your local machine.
 
@@ -635,8 +637,6 @@ Configure the repository with settings similar to the following:
 Save the repository after completing the configuration.
 
 ---
-
-## Screenshot Placeholder
 
 ```text
 images/docker-hosted-repository.png
@@ -744,7 +744,7 @@ Once authentication succeeds, the Docker client can interact with the hosted rep
 
 ---
 
-# Step 8 — Authenticate the Docker Client
+# Step 8: Authenticate the Docker Client
 
 Open a terminal and authenticate against the Docker Hosted Repository.
 
@@ -776,21 +776,19 @@ This confirms that the Docker client is authorized to interact with the private 
 
 ---
 
-## Screenshot Placeholder
-
 ```text
 images/docker-login.png
 ```
 
 <p align="center">
 
-![Docker Login](images/docker-login.png)
+![Docker Login](images/docker-login-locaol-host.png)
 
 </p>
 
 ---
 
-# Step 9 — View Local Docker Images
+# Step 9: View Local Docker Images
 
 Before publishing an image, inspect the images already available on your local machine.
 
@@ -810,8 +808,6 @@ node            latest    xxxxxxxxx      x days ago     xxxMB
 Choose the image that you want to publish to the private registry.
 
 ---
-
-## Screenshot Placeholder
 
 ```text
 images/docker-images.png
@@ -852,7 +848,7 @@ The original image remains unchanged. Docker simply creates another reference th
 
 ---
 
-# Step 10 — Tag a Docker Image
+# Step 10: Tag a Docker Image
 
 Create a tag for the image that targets the private registry.
 
@@ -871,8 +867,6 @@ The output should now include the newly tagged image alongside the original imag
 
 ---
 
-## Screenshot Placeholder
-
 ```text
 images/docker-tag.png
 ```
@@ -885,7 +879,7 @@ images/docker-tag.png
 
 ---
 
-# Step 11 — Push the Image to Nexus
+# Step 11: Push the Image to Nexus
 
 Publish the tagged image to the Docker Hosted Repository.
 
@@ -909,8 +903,6 @@ Push Complete
 After completion, the image is stored inside Nexus Repository Manager.
 
 ---
-
-## Screenshot Placeholder
 
 ```text
 images/docker-push.png
@@ -950,8 +942,6 @@ Seeing the image listed confirms that the push operation completed successfully.
 
 ---
 
-## Screenshot Placeholder
-
 ```text
 images/repository-images.png
 ```
@@ -964,7 +954,7 @@ images/repository-images.png
 
 ---
 
-# Step 12 — Pull the Image from Nexus
+# Step 12: Pull the Image from Nexus
 
 To verify that the registry can distribute stored images, pull the image back from Nexus.
 
@@ -982,8 +972,6 @@ A successful pull confirms that:
 
 ---
 
-## Screenshot Placeholder
-
 ```text
 images/docker-pull.png
 ```
@@ -996,7 +984,7 @@ images/docker-pull.png
 
 ---
 
-# Step 13 — Deploy a Container from the Private Registry
+# Step 13: Deploy a Container from the Private Registry
 
 Run a container using the image stored in Nexus.
 
@@ -1024,8 +1012,6 @@ http://localhost:8080
 If the default Nginx page is displayed, the container is running correctly using the image retrieved from your private registry.
 
 ---
-
-## Screenshot Placeholder
 
 ```text
 images/container-running.png
@@ -1313,8 +1299,6 @@ docker volume rm nexus-data
 ```
 
 ---
-
-## Screenshot Placeholder
 
 ```text
 images/cleanup.png
